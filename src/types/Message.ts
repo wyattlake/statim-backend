@@ -17,5 +17,5 @@ export class Message {
     content: string;
 
     @Field(() => User)
-    author?: User;
+    user: User;
 }

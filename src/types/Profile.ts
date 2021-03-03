@@ -8,7 +8,7 @@ export class Profile {
     id: number;
 
     @Field(() => User)
-    user?: User;
+    user: User;
 
     @Field(() => String, { nullable: true })
     bio?: string | null;
