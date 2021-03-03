@@ -1,33 +1,35 @@
-datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model Message {
-  id        Int      @default(autoincrement()) @id
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   content   String?
-  user      User     @relation(fields: [userId], references: [id])
   userId    Int
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Profile {
-  id     Int     @default(autoincrement()) @id
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+  id        Int     @id @default(autoincrement())
+  bio       String?
+  userId    Int     @unique
+  user      User    @relation(fields: [userId], references: [id])
 }
 
 model User {
-  id       Int      @default(autoincrement()) @id
-  email    String   @unique
-  password String
-  username String
-  messages Message[]
-  profile  Profile?
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  email     String    @unique
+  password  String
+  username  String
+  messages  Message[]
+  profile   Profile?
 }

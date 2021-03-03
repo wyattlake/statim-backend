@@ -1,12 +1,18 @@
 import { PrismaClient } from "@prisma/client";
+import express from "express";
 const prisma = new PrismaClient();
+
 async function main() {
-    const allUsers = await prisma.user.findMany();
-    console.log(allUsers);
+    const app = express();
+
+    app.listen(9000, () => {
+        console.log("Server started on port 9000");
+    });
 }
+
 main()
-    .catch((e) => {
-        throw e;
+    .catch((error) => {
+        throw error;
     })
     .finally(async () => {
         await prisma.$disconnect();
