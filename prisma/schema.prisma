@@ -24,10 +24,11 @@ model Profile {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  email     String    @unique
+  email     String   @unique
+  salt      String
   password  String
   username  String
   messages  Message[]

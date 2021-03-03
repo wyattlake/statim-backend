@@ -16,5 +16,5 @@ export class User {
     email: string;
 
     @Field(() => String)
-    username?: string;
+    username: string;
 }
