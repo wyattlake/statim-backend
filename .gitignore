@@ -1,3 +1,11 @@
+# modules
 /node_modules
+
+# js
 /dist
+
+# environment variables
+.env
+
+# misc
 .DS_Store
