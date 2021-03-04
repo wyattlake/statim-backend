@@ -1,5 +1,5 @@
 import { ObjectType, Field } from "type-graphql";
-import { User } from "../user/User";
+import { User, UserSelect } from "../user/User";
 
 @ObjectType()
 export class Message {
@@ -15,3 +15,12 @@ export class Message {
     @Field(() => User)
     user: User;
 }
+
+export const MessageSelect = {
+    createdAt: true,
+    updatedAt: true,
+    content: true,
+    user: {
+        select: UserSelect,
+    },
+};
