@@ -10,7 +10,7 @@ export class Message {
     updatedAt = new Date();
 
     @Field(() => String)
-    content!: string;
+    content: string;
 
     @Field(() => User)
     user: User;

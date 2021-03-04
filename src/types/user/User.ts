@@ -15,3 +15,10 @@ export class User {
     @Field(() => String)
     username!: string;
 }
+
+export const UserSelect = {
+    createdAt: true,
+    updatedAt: true,
+    email: true,
+    username: true,
+};

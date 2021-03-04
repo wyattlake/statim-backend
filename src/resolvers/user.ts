@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { User } from "../types/user/User";
+import { User, UserSelect } from "../types/user/User";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { Context } from "../types/misc/Context";
 import { nanoid } from "nanoid";
@@ -16,12 +16,15 @@ import {
 } from "../validation/editFieldValidation";
 import { FullUser } from "../types/user/FullUser";
 import { AuthUserResponse } from "../types/user/AuthUserResponse";
+import { AuthUserSelect } from "../types/user/AuthUser";
 
 @Resolver()
 export class UserResolver {
     @Query(() => [User])
     async fetchUsers(@Ctx() ctx: Context) {
-        const users: User[] = await ctx.prisma.user.findMany();
+        const users: User[] = await ctx.prisma.user.findMany({
+            select: UserSelect,
+        });
         return users;
     }
 
@@ -34,6 +37,7 @@ export class UserResolver {
             where: {
                 auth,
             },
+            select: UserSelect,
         });
         return user;
     }
@@ -75,6 +79,7 @@ export class UserResolver {
                     email: options.email,
                     password: hashedPassword,
                 },
+                select: AuthUserSelect,
             });
             user = result;
         } catch (error) {
@@ -127,6 +132,7 @@ export class UserResolver {
                     auth: options.auth,
                 },
                 data: newData,
+                select: AuthUserSelect,
             });
             user = result;
         } catch (error) {

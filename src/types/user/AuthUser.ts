@@ -18,3 +18,11 @@ export class AuthUser {
     @Field(() => String)
     username!: string;
 }
+
+export const AuthUserSelect = {
+    auth: true,
+    createdAt: true,
+    updatedAt: true,
+    email: true,
+    username: true,
+};
