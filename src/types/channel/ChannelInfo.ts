@@ -1,10 +1,7 @@
-import { ObjectType, Field, ID } from "type-graphql";
+import { ObjectType, Field } from "type-graphql";
 
 @ObjectType()
 export class ChannelInfo {
-    @Field(() => ID)
-    id: number;
-
     @Field(() => String)
     uuid!: string;
 
@@ -20,3 +17,11 @@ export class ChannelInfo {
     @Field(() => String, { nullable: true })
     description: string | null;
 }
+
+export const ChannelInfoSelect = {
+    uuid: true,
+    createdAt: true,
+    updatedAt: true,
+    name: true,
+    description: true,
+};

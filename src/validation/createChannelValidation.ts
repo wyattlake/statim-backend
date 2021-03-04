@@ -3,7 +3,7 @@ import { ApolloError } from "apollo-server-express";
 import { channelRegex } from "../constants";
 
 export const createChannelValidation = (name: string): FieldError[] | null => {
-    if (!channelRegex.test(name)) {
+    if (channelRegex.test(name)) {
         return [
             {
                 field: "name",
@@ -35,6 +35,14 @@ export const createChannelErrorHandling = (
                 },
             ];
         }
+    } else if (error.code == "P2002") {
+        return [
+            {
+                field: "n/a",
+                error:
+                    "There was an error generating your credentials. Please try again.",
+            },
+        ];
     }
     return [
         {

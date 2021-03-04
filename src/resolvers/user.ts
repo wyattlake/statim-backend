@@ -17,6 +17,10 @@ import {
 import { FullUser } from "../types/user/FullUser";
 import { UserResponse } from "../types/user/UserResponse";
 import { AuthUserSelect } from "../types/user/AuthUser";
+import {
+    CommunityInfo,
+    CommunitySelect,
+} from "../types/community/CommunityInfo";
 
 @Resolver()
 export class UserResolver {
@@ -40,6 +44,48 @@ export class UserResolver {
             select: UserSelect,
         });
         return user;
+    }
+
+    @Query(() => [CommunityInfo], { nullable: true })
+    async listCommunities(
+        @Arg("userId") userId: string,
+        @Ctx() ctx: Context
+    ): Promise<CommunityInfo[] | null> {
+        const result = await ctx.prisma.user.findUnique({
+            where: {
+                uuid: userId,
+            },
+            select: {
+                communities: {
+                    select: CommunitySelect,
+                },
+            },
+        });
+        if (result) {
+            return result.communities;
+        }
+        return null;
+    }
+
+    @Query(() => [CommunityInfo], { nullable: true })
+    async listOwnedCommunities(
+        @Arg("userId") userId: string,
+        @Ctx() ctx: Context
+    ): Promise<CommunityInfo[] | null> {
+        const result = await ctx.prisma.user.findUnique({
+            where: {
+                uuid: userId,
+            },
+            select: {
+                ownedCommunities: {
+                    select: CommunitySelect,
+                },
+            },
+        });
+        if (result) {
+            return result.ownedCommunities;
+        }
+        return null;
     }
 
     @Mutation(() => Boolean, { nullable: true })

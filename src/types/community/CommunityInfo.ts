@@ -1,10 +1,7 @@
-import { ObjectType, Field, ID } from "type-graphql";
+import { ObjectType, Field } from "type-graphql";
 
 @ObjectType()
 export class CommunityInfo {
-    @Field(() => ID)
-    id: number;
-
     @Field(() => String)
     uuid!: string;
 
@@ -17,3 +14,10 @@ export class CommunityInfo {
     @Field(() => String)
     updatedAt = new Date();
 }
+
+export const CommunitySelect = {
+    uuid: true,
+    name: true,
+    createdAt: true,
+    updatedAt: true,
+};
