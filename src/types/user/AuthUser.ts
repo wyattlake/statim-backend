@@ -4,7 +4,7 @@ import { ObjectType, Field } from "type-graphql";
 @ObjectType()
 export class AuthUser {
     @Field(() => String)
-    auth!: string;
+    uuid!: string;
 
     @Field(() => String)
     createdAt = new Date();
@@ -20,7 +20,7 @@ export class AuthUser {
 }
 
 export const AuthUserSelect = {
-    auth: true,
+    uuid: true,
     createdAt: true,
     updatedAt: true,
     email: true,

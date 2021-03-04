@@ -1,12 +1,12 @@
 import { ObjectType, Field } from "type-graphql";
 import { FieldError } from "../misc/FieldError";
-import { User } from "./User";
+import { AuthUser } from "./AuthUser";
 
 @ObjectType()
 export class UserResponse {
     @Field(() => [FieldError], { nullable: true })
     errors?: FieldError[];
 
-    @Field(() => User, { nullable: true })
-    user?: User;
+    @Field(() => AuthUser, { nullable: true })
+    user?: AuthUser;
 }

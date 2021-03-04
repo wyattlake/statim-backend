@@ -1,3 +1,4 @@
+// SETUP
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,6 +8,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// COMMUNITIES
+model Community {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  name      String
+  creatorId Int
+  creator   User      @relation(fields: [creatorId], references: [id])
+  channels  Channel[]
+  users     User[]    @relation("Users")
+}
+
+model Channel {
+  id          Int       @id @default(autoincrement())
+  uuid        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  name        String
+  description String?
+  communityId Int
+  community   Community @relation(fields: [communityId], references: [id])
+  messages    Message[]
+}
+
 model Message {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -14,24 +40,29 @@ model Message {
   content   String
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
+  channelId Int
+  channel   Channel  @relation(fields: [channelId], references: [id])
+}
+
+// USERS
+model User {
+  id               Int         @id @default(autoincrement())
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  email            String      @unique
+  uuid             String      @unique
+  salt             String
+  password         String
+  username         String
+  messages         Message[]
+  ownedCommunities Community[]
+  communities      Community[] @relation("Users")
+  profile          Profile?
 }
 
 model Profile {
-  id        Int     @id @default(autoincrement())
-  bio       String?
-  userId    Int     @unique
-  user      User    @relation(fields: [userId], references: [id])
-}
-
-model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
-  auth      String   @unique
-  salt      String
-  password  String
-  username  String
-  messages  Message[]
-  profile   Profile?
+  id     Int     @id @default(autoincrement())
+  bio    String?
+  userId Int     @unique
+  user   User    @relation(fields: [userId], references: [id])
 }

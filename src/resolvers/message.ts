@@ -21,14 +21,18 @@ export class MessageResolver {
     @Mutation(() => Message)
     async sendMessage(
         @Arg("content", () => String) content: string,
-        @Arg("auth", () => String) auth: string,
+        @Arg("userId", () => String) userId: string,
+        @Arg("channelId", () => String) channelId: string,
         @Ctx() ctx: Context
     ): Promise<Message> {
         const message = await ctx.prisma.message.create({
             data: {
                 content,
                 user: {
-                    connect: { auth },
+                    connect: { uuid: userId },
+                },
+                channel: {
+                    connect: { uuid: channelId },
                 },
             },
             include: {

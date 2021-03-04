@@ -15,7 +15,7 @@ import {
     editFieldValidation,
 } from "../validation/editFieldValidation";
 import { FullUser } from "../types/user/FullUser";
-import { AuthUserResponse } from "../types/user/AuthUserResponse";
+import { UserResponse } from "../types/user/UserResponse";
 import { AuthUserSelect } from "../types/user/AuthUser";
 
 @Resolver()
@@ -30,12 +30,12 @@ export class UserResolver {
 
     @Query(() => User, { nullable: true })
     async fetchUser(
-        @Arg("auth") auth: string,
+        @Arg("userId") userId: string,
         @Ctx() ctx: Context
     ): Promise<User | null> {
         const user = await ctx.prisma.user.findUnique({
             where: {
-                auth,
+                uuid: userId,
             },
             select: UserSelect,
         });
@@ -44,13 +44,13 @@ export class UserResolver {
 
     @Mutation(() => Boolean, { nullable: true })
     async deleteUser(
-        @Arg("auth") auth: string,
+        @Arg("userId") userId: string,
         @Ctx() ctx: Context
     ): Promise<boolean | null> {
         try {
             await ctx.prisma.user.delete({
                 where: {
-                    auth,
+                    uuid: userId,
                 },
             });
         } catch (_) {
@@ -59,22 +59,21 @@ export class UserResolver {
         return true;
     }
 
-    @Mutation(() => AuthUserResponse)
+    @Mutation(() => UserResponse)
     async createUser(
         @Arg("options", () => FullUserInput) options: FullUserInput,
         @Ctx() ctx: Context
-    ): Promise<AuthUserResponse> {
-        const salt = nanoid();
+    ): Promise<UserResponse> {
+        const salt = nanoid(21);
         const hashedPassword = await argon2.hash(options.password + salt);
         const errors = createUserValidation(options);
-        const auth = nanoid(21);
         if (errors) return { errors };
         let user;
         try {
             const result = await ctx.prisma.user.create({
                 data: {
                     username: options.username,
-                    auth,
+                    uuid: nanoid(21),
                     salt,
                     email: options.email,
                     password: hashedPassword,
@@ -91,14 +90,14 @@ export class UserResolver {
         };
     }
 
-    @Mutation(() => AuthUserResponse)
+    @Mutation(() => UserResponse)
     async updateUserField(
         @Arg("options", () => EditUserInput) options: EditUserInput,
         @Ctx() ctx: Context
-    ): Promise<AuthUserResponse> {
+    ): Promise<UserResponse> {
         const fetchedUser: FullUser | null = await ctx.prisma.user.findUnique({
             where: {
-                auth: options.auth,
+                uuid: options.uuid,
             },
         });
 
@@ -115,12 +114,12 @@ export class UserResolver {
                 email: options.newValue,
             };
         } else {
-            const auth = nanoid(21);
+            const uuid = nanoid(21);
             const hashedPassword = await argon2.hash(
                 options.newValue + fetchedUser!.salt
             );
             newData = {
-                auth,
+                uuid,
                 password: hashedPassword,
             };
         }
@@ -129,7 +128,7 @@ export class UserResolver {
         try {
             const result = await ctx.prisma.user.update({
                 where: {
-                    auth: options.auth,
+                    uuid: options.uuid,
                 },
                 data: newData,
                 select: AuthUserSelect,

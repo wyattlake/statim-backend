@@ -3,7 +3,7 @@ import { Field, ObjectType } from "type-graphql";
 @ObjectType()
 export class FullUser {
     @Field(() => String)
-    auth!: string;
+    uuid!: string;
 
     @Field(() => String)
     email!: string;
