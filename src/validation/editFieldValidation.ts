@@ -1,9 +1,9 @@
 import { FieldError } from "../types/misc/FieldError";
 import { EditUserInput } from "../types/user/EditUserInput";
 import argon2 from "argon2";
-import { FullUser } from "../types/user/FullUser";
 import { emailRegex } from "../constants";
 import { ApolloError } from "apollo-server-express";
+import { FullUser } from "../types/user/FullUser";
 
 export const editFieldValidation = async (
     fetchedUser: FullUser | null,
@@ -33,7 +33,7 @@ export const editFieldValidation = async (
         return [
             {
                 field: "password",
-                error: "Password must be between 5 and 32 characters",
+                error: "New password must be between 5 and 32 characters",
             },
         ];
     }
@@ -68,7 +68,7 @@ export const editfieldErrorHandling = (error: ApolloError): FieldError[] => {
             return [
                 {
                     field: "email",
-                    error: "This email is already in use",
+                    error: "The new email is already in use",
                 },
             ];
         } else {

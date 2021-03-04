@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { User } from "../types/user/User";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { UserResponse } from "../types/user/UserResponse";
 import { Context } from "../types/misc/Context";
 import { nanoid } from "nanoid";
 import argon2 from "argon2";
@@ -15,6 +14,8 @@ import {
     editfieldErrorHandling,
     editFieldValidation,
 } from "../validation/editFieldValidation";
+import { FullUser } from "../types/user/FullUser";
+import { AuthUserResponse } from "../types/user/AuthUserResponse";
 
 @Resolver()
 export class UserResolver {
@@ -37,11 +38,28 @@ export class UserResolver {
         return user;
     }
 
-    @Mutation(() => UserResponse)
+    @Mutation(() => Boolean, { nullable: true })
+    async deleteUser(
+        @Arg("auth") auth: string,
+        @Ctx() ctx: Context
+    ): Promise<boolean | null> {
+        try {
+            await ctx.prisma.user.delete({
+                where: {
+                    auth,
+                },
+            });
+        } catch (_) {
+            return null;
+        }
+        return true;
+    }
+
+    @Mutation(() => AuthUserResponse)
     async createUser(
         @Arg("options", () => FullUserInput) options: FullUserInput,
         @Ctx() ctx: Context
-    ): Promise<UserResponse> {
+    ): Promise<AuthUserResponse> {
         const salt = nanoid();
         const hashedPassword = await argon2.hash(options.password + salt);
         const errors = createUserValidation(options);
@@ -68,12 +86,12 @@ export class UserResolver {
         };
     }
 
-    @Mutation(() => UserResponse)
+    @Mutation(() => AuthUserResponse)
     async updateUserField(
         @Arg("options", () => EditUserInput) options: EditUserInput,
         @Ctx() ctx: Context
-    ): Promise<UserResponse> {
-        const fetchedUser = await ctx.prisma.user.findUnique({
+    ): Promise<AuthUserResponse> {
+        const fetchedUser: FullUser | null = await ctx.prisma.user.findUnique({
             where: {
                 auth: options.auth,
             },
