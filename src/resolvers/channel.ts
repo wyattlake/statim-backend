@@ -139,4 +139,26 @@ export class ChannelResolver {
         }
         return { channel };
     }
+
+    @Mutation(() => Boolean, { nullable: true })
+    async deleteChannel(
+        @Arg("channelId") channelId: string,
+        @Arg("userId") userId: string,
+        @Ctx() ctx: Context
+    ): Promise<boolean | null> {
+        const { count } = await ctx.prisma.channel.deleteMany({
+            where: {
+                uuid: channelId,
+                community: {
+                    creator: {
+                        uuid: userId,
+                    },
+                },
+            },
+        });
+        if (count > 0) {
+            return true;
+        }
+        return null;
+    }
 }

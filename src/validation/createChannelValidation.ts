@@ -3,7 +3,7 @@ import { ApolloError } from "apollo-server-express";
 import { channelRegex } from "../constants";
 
 export const createChannelValidation = (name: string): FieldError[] | null => {
-    if (channelRegex.test(name)) {
+    if (!channelRegex.test(name)) {
         return [
             {
                 field: "name",
