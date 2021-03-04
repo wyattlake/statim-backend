@@ -1,28 +1,40 @@
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { Context } from "../types/misc/Context";
-import { ChannelInfo } from "../types/channel/ChannelInfo";
 import { nanoid } from "nanoid";
-import { CommunityInfo } from "../types/community/CommunityInfo";
+import { CommunityResponse } from "../types/community/CommunityResponse";
+import {
+    createCommunityErrorHandling,
+    createCommunityValidation,
+} from "../validation/createCommunityValidation";
 
 @Resolver()
 export class CommunityResolver {
-    @Mutation(() => ChannelInfo)
+    @Mutation(() => CommunityResponse)
     async createCommunity(
         @Arg("creatorId") creatorId: string,
         @Arg("name") name: string,
         @Ctx() ctx: Context
-    ): Promise<CommunityInfo> {
-        const community = await ctx.prisma.community.create({
-            data: {
-                uuid: nanoid(21),
-                name,
-                creator: {
-                    connect: { uuid: creatorId },
+    ): Promise<CommunityResponse> {
+        let errors = createCommunityValidation(name);
+        if (errors) return { errors };
+        let community;
+        try {
+            const result = await ctx.prisma.community.create({
+                data: {
+                    uuid: nanoid(21),
+                    name,
+                    creator: {
+                        connect: { uuid: creatorId },
+                    },
+                    users: {},
+                    channels: {},
                 },
-                users: {},
-                channels: {},
-            },
-        });
-        return community;
+            });
+            community = result;
+        } catch (error) {
+            errors = createCommunityErrorHandling(error);
+            return { errors };
+        }
+        return { community };
     }
 }

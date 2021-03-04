@@ -80,12 +80,11 @@ export const editfieldErrorHandling = (error: ApolloError): FieldError[] => {
                 },
             ];
         }
-    } else {
-        return [
-            {
-                field: "n/a",
-                error: "An unkown error occured",
-            },
-        ];
     }
+    return [
+        {
+            field: "n/a",
+            error: "An unkown error occurred",
+        },
+    ];
 };
