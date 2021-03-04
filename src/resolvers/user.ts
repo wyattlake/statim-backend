@@ -11,9 +11,9 @@ import {
 } from "../validation/createUserValidation";
 import { EditUserInput } from "../types/user/EditUserInput";
 import {
-    editfieldErrorHandling,
-    editFieldValidation,
-} from "../validation/editFieldValidation";
+    updateUserErrorHandling,
+    updateUserValidation,
+} from "../validation/updateUserValidation";
 import { FullUser } from "../types/user/FullUser";
 import { UserResponse } from "../types/user/UserResponse";
 import { AuthUserSelect } from "../types/user/AuthUser";
@@ -147,7 +147,7 @@ export class UserResolver {
             },
         });
 
-        const errors = await editFieldValidation(fetchedUser, options);
+        const errors = await updateUserValidation(fetchedUser, options);
         if (errors) return { errors };
 
         let newData;
@@ -181,7 +181,7 @@ export class UserResolver {
             });
             user = result;
         } catch (error) {
-            const errors = editfieldErrorHandling(error);
+            const errors = updateUserErrorHandling(error);
             return { errors };
         }
 

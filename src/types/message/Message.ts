@@ -13,7 +13,7 @@ export class Message {
     content: string;
 
     @Field(() => User)
-    user: User;
+    user: User | null;
 }
 
 export const MessageSelect = {

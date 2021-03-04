@@ -5,7 +5,7 @@ import { emailRegex } from "../constants";
 import { ApolloError } from "apollo-server-express";
 import { FullUser } from "../types/user/FullUser";
 
-export const editFieldValidation = async (
+export const updateUserValidation = async (
     fetchedUser: FullUser | null,
     options: EditUserInput
 ): Promise<FieldError[] | null> => {
@@ -62,7 +62,7 @@ export const editFieldValidation = async (
     return null;
 };
 
-export const editfieldErrorHandling = (error: ApolloError): FieldError[] => {
+export const updateUserErrorHandling = (error: ApolloError): FieldError[] => {
     if (error.code == "P2002") {
         if (error.message.includes("email")) {
             return [
