@@ -3,11 +3,12 @@ import { EditUserInput } from "../types/user/EditUserInput";
 import argon2 from "argon2";
 import { FullUser } from "../types/user/FullUser";
 import { emailRegex } from "../constants";
+import { ApolloError } from "apollo-server-express";
 
-export const editFieldValidation = (
+export const editFieldValidation = async (
     fetchedUser: FullUser | null,
     options: EditUserInput
-): FieldError[] | null => {
+): Promise<FieldError[] | null> => {
     if (options.field == "email" && !emailRegex.test(options.newValue)) {
         return [
             {
@@ -37,12 +38,11 @@ export const editFieldValidation = (
         ];
     }
     if (fetchedUser) {
-        if (
-            !argon2.verify(
-                fetchedUser.password,
-                options.password + fetchedUser.salt
-            )
-        ) {
+        const valid = await argon2.verify(
+            fetchedUser.password,
+            options.password + fetchedUser.salt
+        );
+        if (!valid) {
             return [
                 {
                     field: "password",
@@ -60,4 +60,32 @@ export const editFieldValidation = (
     }
 
     return null;
+};
+
+export const editfieldErrorHandling = (error: ApolloError): FieldError[] => {
+    if (error.code == "P2002") {
+        if (error.message.includes("email")) {
+            return [
+                {
+                    field: "email",
+                    error: "This email is already in use",
+                },
+            ];
+        } else {
+            return [
+                {
+                    field: "n/a",
+                    error:
+                        "There was an error generating your credentials. Please try again.",
+                },
+            ];
+        }
+    } else {
+        return [
+            {
+                field: "n/a",
+                error: "An unkown error occured",
+            },
+        ];
+    }
 };

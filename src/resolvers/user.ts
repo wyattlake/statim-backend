@@ -11,7 +11,10 @@ import {
     createUserValidation,
 } from "../validation/createUserValidation";
 import { EditUserInput } from "../types/user/EditUserInput";
-import { editFieldValidation } from "../validation/editFieldValidation";
+import {
+    editfieldErrorHandling,
+    editFieldValidation,
+} from "../validation/editFieldValidation";
 
 @Resolver()
 export class UserResolver {
@@ -66,7 +69,7 @@ export class UserResolver {
     }
 
     @Mutation(() => UserResponse)
-    async updateField(
+    async updateUserField(
         @Arg("options", () => EditUserInput) options: EditUserInput,
         @Ctx() ctx: Context
     ): Promise<UserResponse> {
@@ -76,7 +79,7 @@ export class UserResolver {
             },
         });
 
-        const errors = editFieldValidation(fetchedUser, options);
+        const errors = await editFieldValidation(fetchedUser, options);
         if (errors) return { errors };
 
         let newData;
@@ -91,7 +94,7 @@ export class UserResolver {
         } else {
             const auth = nanoid(21);
             const hashedPassword = await argon2.hash(
-                options.password + fetchedUser?.salt
+                options.newValue + fetchedUser!.salt
             );
             newData = {
                 auth,
@@ -99,12 +102,19 @@ export class UserResolver {
             };
         }
 
-        const user = await ctx.prisma.user.update({
-            where: {
-                auth: options.auth,
-            },
-            data: newData,
-        });
+        let user;
+        try {
+            const result = await ctx.prisma.user.update({
+                where: {
+                    auth: options.auth,
+                },
+                data: newData,
+            });
+            user = result;
+        } catch (error) {
+            const errors = editfieldErrorHandling(error);
+            return { errors };
+        }
 
         return { user };
     }
