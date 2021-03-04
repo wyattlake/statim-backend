@@ -1,12 +1,9 @@
 import "reflect-metadata";
-import { ObjectType, Field, ID } from "type-graphql";
-import { User } from "./User";
+import { ObjectType, Field } from "type-graphql";
+import { User } from "../user/User";
 
 @ObjectType()
 export class Message {
-    @Field(() => ID)
-    id: number;
-
     @Field(() => String)
     createdAt = new Date();
 
@@ -14,8 +11,8 @@ export class Message {
     updatedAt = new Date();
 
     @Field(() => String)
-    content: string;
+    content!: string;
 
     @Field(() => User)
-    user: User;
+    user!: User;
 }

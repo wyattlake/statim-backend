@@ -3,9 +3,7 @@ import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user";
 import express from "express";
-const prisma = new PrismaClient({
-    log: ["query", "info", `warn`, `error`],
-});
+const prisma = new PrismaClient();
 
 async function main() {
     const app = express();

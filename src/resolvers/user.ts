@@ -1,15 +1,17 @@
 import "reflect-metadata";
-import { User } from "../types/User";
+import { User } from "../types/user/User";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { UserResponse } from "../types/UserResponse";
-import { Context } from "../types";
+import { UserResponse } from "../types/user/UserResponse";
+import { Context } from "../types/misc/Context";
 import { nanoid } from "nanoid";
 import argon2 from "argon2";
-import { FullUserInput } from "../types/FullUserInput";
+import { FullUserInput } from "../types/user/FullUserInput";
 import {
     createUserErrorHandling,
     createUserValidation,
 } from "../validation/createUserValidation";
+import { EditUserInput } from "../types/user/EditUserInput";
+import { editFieldValidation } from "../validation/editFieldValidation";
 
 @Resolver()
 export class UserResolver {
@@ -21,12 +23,12 @@ export class UserResolver {
 
     @Query(() => User, { nullable: true })
     async fetchUser(
-        @Arg("id") id: number,
+        @Arg("auth") auth: string,
         @Ctx() ctx: Context
     ): Promise<User | null> {
         const user = await ctx.prisma.user.findUnique({
             where: {
-                id,
+                auth,
             },
         });
         return user;
@@ -40,12 +42,14 @@ export class UserResolver {
         const salt = nanoid();
         const hashedPassword = await argon2.hash(options.password + salt);
         const errors = createUserValidation(options);
+        const auth = nanoid(21);
         if (errors) return { errors };
         let user;
         try {
             const result = await ctx.prisma.user.create({
                 data: {
                     username: options.username,
+                    auth,
                     salt,
                     email: options.email,
                     password: hashedPassword,
@@ -59,5 +63,49 @@ export class UserResolver {
         return {
             user,
         };
+    }
+
+    @Mutation(() => UserResponse)
+    async updateField(
+        @Arg("options", () => EditUserInput) options: EditUserInput,
+        @Ctx() ctx: Context
+    ): Promise<UserResponse> {
+        const fetchedUser = await ctx.prisma.user.findUnique({
+            where: {
+                auth: options.auth,
+            },
+        });
+
+        const errors = editFieldValidation(fetchedUser, options);
+        if (errors) return { errors };
+
+        let newData;
+        if (options.field == "username") {
+            newData = {
+                username: options.newValue,
+            };
+        } else if (options.field == "email") {
+            newData = {
+                email: options.newValue,
+            };
+        } else {
+            const auth = nanoid(21);
+            const hashedPassword = await argon2.hash(
+                options.password + fetchedUser?.salt
+            );
+            newData = {
+                auth,
+                password: hashedPassword,
+            };
+        }
+
+        const user = await ctx.prisma.user.update({
+            where: {
+                auth: options.auth,
+            },
+            data: newData,
+        });
+
+        return { user };
     }
 }

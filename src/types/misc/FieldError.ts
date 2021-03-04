@@ -4,8 +4,8 @@ import "reflect-metadata";
 @ObjectType()
 export class FieldError {
     @Field()
-    field: string;
+    field!: string;
 
     @Field()
-    error: string;
+    error!: string;
 }

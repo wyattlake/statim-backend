@@ -1,14 +1,11 @@
 import "reflect-metadata";
-import { ObjectType, Field, ID } from "type-graphql";
-import { User } from "./User";
+import { ObjectType, Field } from "type-graphql";
+import { User } from "../user/User";
 
 @ObjectType()
 export class Profile {
-    @Field(() => ID)
-    id: number;
-
     @Field(() => User)
-    user: User;
+    user!: User;
 
     @Field(() => String, { nullable: true })
     bio?: string | null;

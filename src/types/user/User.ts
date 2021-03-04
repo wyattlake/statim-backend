@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import { ObjectType, Field, ID } from "type-graphql";
+import { ObjectType, Field } from "type-graphql";
 
 @ObjectType()
 export class User {
-    @Field(() => ID)
-    id: number;
+    @Field(() => String)
+    auth!: String;
 
     @Field(() => String)
     createdAt = new Date();
@@ -13,8 +13,8 @@ export class User {
     updatedAt = new Date();
 
     @Field()
-    email: string;
+    email!: string;
 
     @Field(() => String)
-    username: string;
+    username!: string;
 }

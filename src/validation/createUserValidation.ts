@@ -1,6 +1,6 @@
 import { emailRegex } from "../constants";
-import { FullUserInput } from "src/types/FullUserInput";
-import { FieldError } from "../types/FieldError";
+import { FullUserInput } from "../types/user/FullUserInput";
+import { FieldError } from "../types/misc/FieldError";
 import { ApolloError } from "apollo-server-express";
 
 export const createUserValidation = (
@@ -38,12 +38,22 @@ export const createUserValidation = (
 
 export const createUserErrorHandling = (error: ApolloError): FieldError[] => {
     if (error.code == "P2002") {
-        return [
-            {
-                field: "email",
-                error: "This email is already in use",
-            },
-        ];
+        if (error.message.includes("email")) {
+            return [
+                {
+                    field: "email",
+                    error: "This email is already in use",
+                },
+            ];
+        } else {
+            return [
+                {
+                    field: "n/a",
+                    error:
+                        "There was an error generating your credentials. Please try again.",
+                },
+            ];
+        }
     } else {
         return [
             {
