@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { ObjectType, Field } from "type-graphql";
 import { User } from "../user/User";
 
@@ -14,5 +13,5 @@ export class Message {
     content!: string;
 
     @Field(() => User)
-    user!: User;
+    user: User;
 }
