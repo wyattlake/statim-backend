@@ -7,6 +7,8 @@ import {
     createCommunityValidation,
 } from "../validation/createCommunityValidation";
 import { ChannelInfo, ChannelInfoSelect } from "../types/channel/ChannelInfo";
+import { EditCommunityInput } from "../types/community/EditCommunityInput";
+import { updateCommunityValidation } from "../validation/updateCommunityValidation";
 
 @Resolver()
 export class CommunityResolver {
@@ -30,6 +32,7 @@ export class CommunityResolver {
         }
         return null;
     }
+
     @Mutation(() => CommunityResponse)
     async createCommunity(
         @Arg("creatorId") creatorId: string,
@@ -47,6 +50,7 @@ export class CommunityResolver {
                     creator: {
                         connect: { uuid: creatorId },
                     },
+                    description: null,
                     users: {},
                     channels: {},
                 },
@@ -57,5 +61,76 @@ export class CommunityResolver {
             return { errors };
         }
         return { community };
+    }
+
+    @Mutation(() => CommunityResponse)
+    async updateCommunity(
+        @Arg("options", () => EditCommunityInput) options: EditCommunityInput,
+        @Ctx() ctx: Context
+    ): Promise<CommunityResponse> {
+        const fetchedCommunity = await ctx.prisma.community.findUnique({
+            where: {
+                uuid: options.communityId,
+            },
+            select: {
+                creator: {
+                    select: {
+                        uuid: true,
+                    },
+                },
+            },
+        });
+        let errors = updateCommunityValidation(fetchedCommunity, options);
+        if (errors) return { errors };
+        let newData;
+        if (options.field == "name") {
+            newData = {
+                name: options.newValue,
+            };
+        } else {
+            newData = {
+                description: options.newValue,
+            };
+        }
+        let community;
+        try {
+            const result = await ctx.prisma.community.update({
+                where: {
+                    uuid: options.communityId,
+                },
+                data: newData,
+            });
+            community = result;
+        } catch (error) {
+            return {
+                errors: [
+                    {
+                        field: "n/a",
+                        error: "An unknown error occurred",
+                    },
+                ],
+            };
+        }
+        return { community };
+    }
+
+    @Mutation(() => Boolean, { nullable: true })
+    async deleteCommunity(
+        @Arg("communityId") communityId: string,
+        @Arg("userId") userId: string,
+        @Ctx() ctx: Context
+    ): Promise<boolean | null> {
+        const { count } = await ctx.prisma.community.deleteMany({
+            where: {
+                uuid: communityId,
+                creator: {
+                    uuid: userId,
+                },
+            },
+        });
+        if (count > 0) {
+            return true;
+        }
+        return null;
     }
 }

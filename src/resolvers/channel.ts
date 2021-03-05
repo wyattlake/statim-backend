@@ -8,7 +8,6 @@ import {
 } from "../validation/createChannelValidation";
 import { Message, MessageSelect } from "../types/message/Message";
 import { EditChannelInput } from "../types/channel/EditChannelInput";
-import { AuthUserSelect } from "../types/user/AuthUser";
 import { updateChannelValidation } from "../validation/updateChannelValidation";
 
 @Resolver()
@@ -100,7 +99,9 @@ export class ChannelResolver {
                 community: {
                     select: {
                         creator: {
-                            select: AuthUserSelect,
+                            select: {
+                                uuid: true,
+                            },
                         },
                     },
                 },

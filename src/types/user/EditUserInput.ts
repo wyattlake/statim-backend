@@ -7,7 +7,7 @@ export class EditUserInput {
     field!: UserField;
 
     @Field(() => String)
-    uuid!: string;
+    userId!: string;
 
     @Field(() => String)
     newValue!: string;

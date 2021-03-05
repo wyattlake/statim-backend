@@ -6,10 +6,6 @@ type ChannelWithCreator = {
     community: {
         creator: {
             uuid: string;
-            createdAt: Date;
-            updatedAt: Date;
-            email: string;
-            username: string;
         };
     };
 };

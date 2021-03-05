@@ -143,7 +143,7 @@ export class UserResolver {
     ): Promise<UserResponse> {
         const fetchedUser: FullUser | null = await ctx.prisma.user.findUnique({
             where: {
-                uuid: options.uuid,
+                uuid: options.userId,
             },
         });
 
@@ -174,7 +174,7 @@ export class UserResolver {
         try {
             const result = await ctx.prisma.user.update({
                 where: {
-                    uuid: options.uuid,
+                    uuid: options.userId,
                 },
                 data: newData,
                 select: AuthUserSelect,
